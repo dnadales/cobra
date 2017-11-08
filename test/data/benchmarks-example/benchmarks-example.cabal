@@ -35,6 +35,11 @@ benchmark bench
   build-depends:       base
                      , criterion
                      , temporary
+                     , aeson
+                     , lens
+                     , lens-aeson
+                     , bytestring
+                     
                      , benchmarks-example
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall -Werror -O
   default-language:    Haskell2010
