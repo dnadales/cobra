@@ -44,16 +44,17 @@ parseOutput :: String -> Either ParseError BenchmarkResult
 parseOutput = parse benchmarkResultP ""
 
 benchmarkResultP :: Parser BenchmarkResult
-benchmarkResultP = BenchmarkResult <$> strParser
-                                   <*> (whiteSpace lexer *> floatParser)
-                                   <*> (whiteSpace lexer *> floatParser)
-                                   <*> (whiteSpace lexer *> floatParser)
+benchmarkResultP = BenchmarkResult <$> strP
+                                   <*> (whiteSpace lexer *> floatP)
+                                   <*> (whiteSpace lexer *> floatP)
+                                   <*> (whiteSpace lexer *> floatP)
 
-floatParser :: Parser Double
-floatParser = float lexer
+floatP :: Parser Double
+floatP = float lexer
 
 lexer :: GenTokenParser String u Identity
 lexer = makeTokenParser haskellDef
 
-strParser :: Parser String
-strParser = stringLiteral lexer
+strP :: Parser String
+strP = stringLiteral lexer
+
