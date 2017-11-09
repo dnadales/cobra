@@ -22,6 +22,7 @@ library
                      , turtle
                      , text
                      , classy-prelude
+                     , parsec
                      
   default-language:    Haskell2010
 
