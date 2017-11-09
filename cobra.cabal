@@ -19,6 +19,10 @@ library
                      , CobraOpts
   build-depends:       base >= 4.7 && < 5
                      , optparse-applicative
+                     , turtle
+                     , text
+                     , classy-prelude
+                     
   default-language:    Haskell2010
 
 executable cobra
