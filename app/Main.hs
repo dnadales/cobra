@@ -1,6 +1,8 @@
 module Main where
 
-import Lib
+import           CobraOpts
 
 main :: IO ()
-main = someFunc
+main = do
+    opts <- parseCmdLine
+    print opts
