@@ -3,11 +3,18 @@ module Cobra where
 
 import           ClassyPrelude        (Identity, unlessM)
 import           CobraOpts
-import           Control.Applicative
+import           Control.Applicative  hiding ((<|>))
+import           Control.Arrow
+import qualified Control.Foldl        as Fold
+import           Data.Either
+import           Data.FileStore.Git
+import           Data.FileStore.Types
+import           Data.Maybe
 import           Data.Semigroup       ((<>))
 import           Data.String
+import           Data.Text            (Text)
 import qualified Data.Text            as T
-import           Text.Parsec
+import           Text.Parsec          hiding (Line, spaces)
 import           Text.Parsec.Language
 import           Text.Parsec.String
 import           Text.Parsec.Token
@@ -17,9 +24,20 @@ import           Turtle.Shell
 
 runBenchmarks :: CobraOpts -> IO ()
 runBenchmarks opts = sh $ do
+    -- Get the project-name to which the benchmarks belong, and revision id.
+    -- For now we use the git-commit hash, which means that at the moment
+    -- 'cobra' will only work with git repositories.
+    ePn <- liftIO gitProjectName
+    pn <- case ePn of
+        Left errM -> die (T.pack errM)
+        Right val -> return val
+    liftIO $ putStrLn $ "TODO: store this project name: " ++ pn
+    let fs = gitFileStore "."
+    benchId <- liftIO $ latest fs ""
+    liftIO $ putStrLn $ "TODO: store this revision: " ++ benchId
     unlessM (testpath cmdFP) $
         die ("Could not find an executable for '" <> cmd <> "'")
-    line <- (T.unpack . lineToText) <$> inproc cmd [] empty
+    line <- lineToString <$> inproc cmd [] empty
     let eRes = parseOutput line
     case eRes of
         Left pErr -> warnParseError line pErr
@@ -32,6 +50,9 @@ runBenchmarks opts = sh $ do
                             ++ line
                             ++ "(" ++ show pErr ++ ")"
                             )
+
+lineToString :: Line -> String
+lineToString = T.unpack . lineToText
 
 data BenchmarkResult = BenchmarkResult
     { name              :: String  -- ^ Name of the benchmark.
@@ -57,4 +78,33 @@ lexer = makeTokenParser haskellDef
 
 strP :: Parser String
 strP = stringLiteral lexer
+
+-- | Parse the repository name from the output given by the first line of `git remote -v`.
+repoNameFromRemoteP :: Parser String
+repoNameFromRemoteP = do
+    _ <- originPart >> hostPart
+    _ <- char ':'
+    firstPart <- many1 alphaNum
+    _ <- char '/'
+    secondPart <- many1 alphaNum
+    _ <- string ".git"
+    return $ firstPart ++ "/" ++ secondPart
+    where
+      originPart = many1 alphaNum >> space
+      hostPart =  many1 alphaNum
+               >> (string "@" <|> string "://")
+               >> many1 alphaNum `sepBy` char '.'
+
+type Error = String
+
+gitProjectName :: IO (Either Error String)
+gitProjectName = do
+    firstLine <- fold gitRemoteV Fold.head
+    return $ maybe (Left errMsg) parseLine firstLine
+    where
+      gitRemoteV = inproc "git" ["remote", "-v"] empty
+      parseLine = left show . parse repoNameFromRemoteP "" . lineToString
+      errMsg = "Could not get git repository information for the current folder."
+
+
 
