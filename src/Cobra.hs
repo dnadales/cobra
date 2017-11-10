@@ -3,7 +3,7 @@ module Cobra where
 
 import           ClassyPrelude        (Identity, unlessM)
 import           CobraOpts
-import           Control.Applicative  hiding ((<|>))
+import           Control.Applicative  hiding (optional, (<|>))
 import           Control.Arrow
 import qualified Control.Foldl        as Fold
 import           Data.Either
@@ -55,20 +55,26 @@ lineToString :: Line -> String
 lineToString = T.unpack . lineToText
 
 data BenchmarkResult = BenchmarkResult
-    { name              :: String  -- ^ Name of the benchmark.
-    , executionTime     :: Double  -- ^ Execution time for that benchmark (could be an average).
-    , standardDeviation :: Double  -- ^ Standard deviation for the measurements.
-    , r2                :: Double  -- ^ R^2 goodness-of-fit
+    { name    :: String  -- ^ Name of the benchmark.
+    , results :: [Measurement]
+    } deriving (Show)
+
+data Measurement = Measurement
+    { measurement :: Double
+    , label       :: String
     } deriving (Show)
 
 parseOutput :: String -> Either ParseError BenchmarkResult
 parseOutput = parse benchmarkResultP ""
 
 benchmarkResultP :: Parser BenchmarkResult
-benchmarkResultP = BenchmarkResult <$> strP
-                                   <*> (whiteSpace lexer *> floatP)
-                                   <*> (whiteSpace lexer *> floatP)
-                                   <*> (whiteSpace lexer *> floatP)
+benchmarkResultP = BenchmarkResult <$> strP <*> many1 (measurementP <* whiteSpaceP)
+
+measurementP :: Parser Measurement
+measurementP = Measurement <$> floatP <*> (whiteSpaceP *> strP)
+
+whiteSpaceP :: Parser ()
+whiteSpaceP = whiteSpace lexer
 
 floatP :: Parser Double
 floatP = float lexer
