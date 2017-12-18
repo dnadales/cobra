@@ -1,9 +1,20 @@
 
 module Cobra.Data
     ( BenchmarkData
-    , DataPoints
+    , DataPoint (..)
+    , TestResult (..)
     ) where
 
-data BenchmarkData
+import Data.Text (Text)
 
-data DataPoints
+data DataPoint = DataPoint
+    { metric :: Text
+    , value :: Double
+    }
+
+data TestResult = TestResult
+    { testSuite :: Text
+    , measurements :: [DataPoint]
+    }
+
+type BenchmarkData = [TestResult]
