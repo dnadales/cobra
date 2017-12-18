@@ -22,15 +22,6 @@ setup = undefined
 runBenchmark :: Command -> IO BenchmarkData
 runBenchmark = undefined
 
--- Storage module
-store :: BenchmarkData -> IO ()
-store = undefined
-
-fromStore :: Constraints -> IO [DataPoint]
-fromStore =undefined
-
--------------
-
 doBenchmark :: SetupData -> Command -> Config -> IO ()
 doBenchmark dat cmd cfg = do
     setup dat
@@ -48,7 +39,3 @@ fetchReport :: Constraints -> IO Report
 fetchReport consts = do
     bmDataPoints <- fromStore consts
     generateReport bmDataPoints
-
--- generateDataPoints :: [BenchmarkData] -> Context ->
-
-
