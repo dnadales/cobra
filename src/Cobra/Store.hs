@@ -1,5 +1,4 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies  #-}
 {-# LANGUAGE FlexibleContexts #-}
 -- |
 -- Module      : Benchmark.Cobra.Store
@@ -17,15 +16,11 @@ module Cobra.Store
     ) where
 
 import Control.Monad.Except
-import Data.Text (Text)
 
 import Cobra.Error
 import Cobra.Data
 
 -- | A constraint on the data store.
 class MonadError Error m  => Store s m where
-    type Query s
-
     store :: s -> TestResults -> VersionIdentifier -> m ()
-    fromStore :: s -> Query s -> m TestResults
     getReferenceResult :: s -> [VersionIdentifier] -> m ReferenceResults

@@ -1,6 +1,6 @@
 module Main where
 
 main :: IO ()
-main = do
+main =
     -- opts <- parseCmdLine
     undefined

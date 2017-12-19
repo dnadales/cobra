@@ -6,9 +6,8 @@ module Cobra.Main
 import qualified Control.Foldl              as F
 import qualified Data.Map             as Map
 import           Control.Monad.Except
-import           Control.Monad.IO.Class
 import           Data.Text (Text)
-import           Turtle
+import           Turtle hiding (s)
 
 import Cobra.Builder
 import Cobra.Store
@@ -32,8 +31,8 @@ doBenchmark b s r n = do
     
 runBenchmark :: (MonadIO m, MonadError Error m) => Command -> m TestResults
 runBenchmark (Command cmdText) = do -- TODO: verify the command exists
-    results <- fold (runCmdShell cmdText) F.list
-    return $ TestResults $ Map.fromList results
+    res <- fold (runCmdShell cmdText) F.list
+    return $ TestResults $ Map.fromList res
     where 
         runCmdShell :: Text -> Shell (Text, MetricValues)
         runCmdShell cmd = do
