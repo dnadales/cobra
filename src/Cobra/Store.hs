@@ -25,5 +25,5 @@ import Cobra.Data
 class MonadError Error m  => Store s m where
     type Query s
 
-    store :: s -> DataPoints -> m ()
-    fromStore :: s -> Query s -> m DataPoints
+    store :: s -> [DataPoint] -> m ()
+    fromStore :: s -> Query s -> m [DataPoint]

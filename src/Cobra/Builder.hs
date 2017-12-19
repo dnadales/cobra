@@ -4,14 +4,15 @@
 
 module Cobra.Builder
     ( Builder (..)
-    , Command
+    , Command (..)
     ) where
 
 import Control.Monad.Except
+import Data.Text (Text)
 
 import Cobra.Error
 
-data Command
+newtype Command = Command { getText :: Text }
 
 class MonadError Error m => Builder b m where
     build :: b -> m Command
