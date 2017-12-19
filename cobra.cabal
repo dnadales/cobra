@@ -21,9 +21,11 @@ library
                      , Cobra.Store
                      , Cobra.Reporter
                      , Cobra.Notifier
+
+                     , Cobra.ResultsParser
                      
                      , Cobra.Data
-                     , Cobra.Error
+                     , Cobra.Error                     
 
   build-depends:       base >= 4.7 && < 5
                      , optparse-applicative
