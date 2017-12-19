@@ -3,11 +3,12 @@ module Cobra.Main
     ( doBenchmark
     ) where
 
-import qualified Control.Foldl as F
-import Control.Monad.Except
-import Control.Monad.IO.Class
-import Data.Text (Text)
-import Turtle
+import qualified Control.Foldl              as F
+import qualified Data.Map             as Map
+import           Control.Monad.Except
+import           Control.Monad.IO.Class
+import           Data.Text (Text)
+import           Turtle
 
 import Cobra.Builder
 import Cobra.Store
@@ -22,22 +23,22 @@ doBenchmark :: (MonadIO m, MonadError Error m, Builder b m, Store s m, Reporter 
 doBenchmark b s r n = do
     cmd <- build b
     bmData <- runBenchmark cmd
-    let bmDataPoints = generateDataPoints bmData
-    store s bmDataPoints
-    report <- generateReport r bmDataPoints
+    vId <- versionIdentifier b
+    store s bmData vId
+    history <- oldVersions b
+    refResult <- getReferenceResult s history
+    report <- generateReport r bmData refResult
     notify n report
     
-runBenchmark :: (MonadIO m, MonadError Error m) => Command -> m BenchmarkData
-runBenchmark (Command cmdText) = do
-    fold (runCmdShell cmdText) F.list
+runBenchmark :: (MonadIO m, MonadError Error m) => Command -> m TestResults
+runBenchmark (Command cmdText) = do -- TODO: verify the command exists
+    results <- fold (runCmdShell cmdText) F.list
+    return $ TestResults $ Map.fromList results
     where 
-        runCmdShell :: Text -> Shell TestResult
+        runCmdShell :: Text -> Shell (Text, MetricValues)
         runCmdShell cmd = do
             line <- inproc cmd [] empty
             let testResult = parseTestResult line
             return testResult
-        parseTestResult :: Line -> TestResult
+        parseTestResult :: Line -> (Text, MetricValues)
         parseTestResult = undefined
-
-generateDataPoints :: BenchmarkData -> [DataPoint]
-generateDataPoints = undefined

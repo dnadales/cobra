@@ -34,6 +34,7 @@ library
                      , filestore
                      , foldl
                      , mtl
+                     , containers
   ghc-options:         -Wall -Werror -O
   default-language:    Haskell2010
 

@@ -1,19 +1,22 @@
 module Cobra.Data
-    ( BenchmarkData
-    , DataPoint (..)
-    , TestResult (..)
+    ( MetricValues (..)
+    , TestResults (..)
+    , VersionIdentifier (..)
+    , ReferenceResults (..)
+    -- , MetricReferenceValues (..)
     ) where
 
 import Data.Text (Text)
+import Data.Map (Map)
 
-data DataPoint = DataPoint
-    { metric :: Text
-    , value :: Double
-    }
+data MetricValues = MetricValues { values :: Map Text Double }
 
-data TestResult = TestResult
-    { testSuite :: Text
-    , measurements :: [DataPoint]
-    }
+data TestResults = TestResults { results :: Map Text MetricValues }
 
-type BenchmarkData = [TestResult]
+data MetricReferenceValues = MetricReferenceValues 
+    { refValues :: Map Text (Double, VersionIdentifier)}
+
+data ReferenceResults = ReferenceResults
+    { refResults :: Map Text MetricReferenceValues }
+
+newtype VersionIdentifier = VersionIdentifier { getVersionText :: Text }

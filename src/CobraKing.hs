@@ -26,16 +26,16 @@ doBenchmark :: SetupData -> Command -> Config -> IO ()
 doBenchmark dat cmd cfg = do
     setup dat
     bmData <- runBenchmark cmd
-    let bmDataPoints = generateDataPoints (context dat) bmData
-    store bmDataPoints
-    report <- generateReport bmDataPoints
+    let bmMetricValues = generateMetricValues (context dat) bmData
+    store bmMetricValues
+    report <- generateReport bmMetricValues
     alert report (alertTargets cfg)
 
-fetchData :: Constraints -> IO [DataPoint]
+fetchData :: Constraints -> IO [MetricValue]
 fetchData consts = do
     fromStore consts
 
 fetchReport :: Constraints -> IO Report
 fetchReport consts = do
-    bmDataPoints <- fromStore consts
-    generateReport bmDataPoints
+    bmMetricValues <- fromStore consts
+    generateReport bmMetricValues
