@@ -34,10 +34,10 @@ runBenchmark (Command cmdText) = do -- TODO: verify the command exists
     res <- fold (runCmdShell cmdText) F.list
     return $ TestResults $ Map.fromList res
     where 
-        runCmdShell :: Text -> Shell (Text, MetricValues)
+        runCmdShell :: Text -> Shell (TestName, MetricValues)
         runCmdShell cmd = do
             line <- inproc cmd [] empty
             let testResult = parseTestResult line
             return testResult
-        parseTestResult :: Line -> (Text, MetricValues)
+        parseTestResult :: Line -> (TestName, MetricValues)
         parseTestResult = undefined

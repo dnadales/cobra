@@ -4,19 +4,27 @@ module Cobra.Data
     , VersionIdentifier (..)
     , ReferenceResults (..)
     , MetricReferenceValues (..)
+    , TestName (..)
+    , MetricName (..)    
     ) where
 
 import Data.Text (Text)
 import Data.Map (Map)
 
-newtype MetricValues = MetricValues { values :: Map Text Double }
+newtype VersionIdentifier = VersionIdentifier { getVersionText :: Text }
 
-newtype TestResults = TestResults { results :: Map Text MetricValues }
+newtype TestName = TestName { getTestName :: Text }
+    deriving (Eq, Ord)
+
+newtype MetricName = MetricName { getMetricName :: Text }
+
+newtype MetricValues = MetricValues { values :: Map MetricName Double }
+
+newtype TestResults = TestResults { results :: Map TestName MetricValues }
 
 newtype MetricReferenceValues = MetricReferenceValues 
-    { refValues :: Map Text (Double, VersionIdentifier)}
+    { refValues :: Map MetricName (Double, VersionIdentifier)}
 
 newtype ReferenceResults = ReferenceResults
-    { refResults :: Map Text MetricReferenceValues }
+    { refResults :: Map TestName MetricReferenceValues }
 
-newtype VersionIdentifier = VersionIdentifier { getVersionText :: Text }
