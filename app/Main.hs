@@ -1,9 +1,6 @@
 module Main where
 
-import           Cobra
-import           CobraOpts
-
 main :: IO ()
-main = do
-    opts <- parseCmdLine
-    runBenchmarks opts
+main =
+    -- opts <- parseCmdLine
+    undefined
