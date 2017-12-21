@@ -47,7 +47,7 @@ runBenchmark (Command cmdText) = do
 
     where
       gatherOutputFromCmd :: IO (Either Error TestResults)
-      gatherOutputFromCmd = do -- TODO: verify the command exists
+      gatherOutputFromCmd = do
           res <- fold (runCmdShell cmdText) F.list
           return $ Right $ TestResults $ Map.fromList res
 
