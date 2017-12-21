@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Cobra.Data
     ( MetricValues (..)
     , TestResults (..)
@@ -10,32 +11,34 @@ module Cobra.Data
 
 import Data.Text (Text)
 import Data.Map (Map)
+import Data.String
+
 
 newtype VersionIdentifier = VersionIdentifier { getVersionText :: Text }
-    deriving (Show)
+    deriving (Eq, Show)
 
 newtype TestName = TestName { getTestName :: Text }
-    deriving (Eq, Ord)
+    deriving (Eq, Ord, IsString)
 
 instance Show TestName where
     show (TestName n) = show n
 
 newtype MetricName = MetricName { getMetricName :: Text }
-    deriving (Eq, Ord)
+    deriving (Eq, Ord, IsString)
 
 instance Show MetricName where
     show (MetricName n) = show n
 
 newtype MetricValues = MetricValues { values :: Map MetricName Double }
-    deriving (Show)
+    deriving (Eq, Show)
 
 newtype TestResults = TestResults { results :: Map TestName MetricValues }
-    deriving (Show)
+    deriving (Eq, Show)
 
 newtype MetricReferenceValues = MetricReferenceValues 
     { refValues :: Map MetricName (Double, VersionIdentifier)}
-    deriving (Show)
+    deriving (Eq, Show)
 
 newtype ReferenceResults = ReferenceResults
     { refResults :: Map TestName MetricReferenceValues }
-    deriving (Show)
+    deriving (Eq, Show)

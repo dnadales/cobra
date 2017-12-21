@@ -39,5 +39,6 @@ runBenchmark (Command cmdText) = do -- TODO: verify the command exists
             line <- inproc cmd [] empty
             let testResult = parseTestResult line
             return testResult
+        -- TODO Use the parse test result from @ResultsParser@.
         parseTestResult :: Line -> (TestName, MetricValues)
         parseTestResult = undefined
