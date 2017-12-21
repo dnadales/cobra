@@ -18,9 +18,6 @@ import           Text.Parsec.String
 
 import           Cobra.Data
 
--- TODO: test like this
--- > show $ parseTestResult "\"hello\" 10.0 \"x\""
-
 -- | Parse the given benchmark output line.
 parseBOL :: Text -> Either ParseError (TestName, MetricValues)
 parseBOL = parse testResultP "" . T.unpack

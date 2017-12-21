@@ -4,7 +4,7 @@ module Cobra.Error
               -- constructor.
     , errorCode
     , message
-    , mkErrorCode
+    , mkError
     ) where
 
 import System.Exit
@@ -15,5 +15,5 @@ data Error = Error
     , message :: Text
     }
 
-mkErrorCode :: Int -> Text -> Error
-mkErrorCode code = Error (ExitFailure code)
+mkError :: Int -> Text -> Error
+mkError code = Error (ExitFailure code)
