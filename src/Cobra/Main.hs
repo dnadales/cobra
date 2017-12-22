@@ -63,6 +63,6 @@ runBenchmark (Command cmdText) = do
           tryParseBOL line
 
       tryParseBOL line =
-          case parseBOL (lineToText line) of
+          case parseLine (lineToText line) of
               Left parseErr -> die $ T.pack (show parseErr)
               Right res -> return res

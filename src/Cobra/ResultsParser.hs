@@ -2,7 +2,7 @@
 -- | Parser for the output of the benchmark programs.
 
 module Cobra.ResultsParser
-    ( parseBOL
+    ( parseLine
     ) where
 
 import qualified Data.Map as Map
@@ -19,20 +19,23 @@ import           Text.Parsec.String
 import           Cobra.Data
 
 -- | Parse the given benchmark output line.
-parseBOL :: Text -> Either ParseError (TestName, MetricValues)
-parseBOL = parse testResultP "" . T.unpack
+parseLine :: Text -> Either ParseError (TestName, MetricValues)
+parseLine = parse testResultP "" . T.unpack
 
-lexer :: GenTokenParser String u Identity
-lexer = makeTokenParser haskellDef
+testResultP :: Parser (TestName, MetricValues)
+testResultP = (,) <$> testNameP <*> metricValuesP
+
+testNameP  :: Parser TestName
+testNameP = TestName . T.pack <$> strP
 
 strP :: Parser String
 strP = stringLiteral lexer
 
-floatP :: Parser Double
-floatP = (*) <$> signP <*> float lexer
+lexer :: GenTokenParser String u Identity
+lexer = makeTokenParser haskellDef
 
-signP :: Parser Double
-signP = option 1 (char '-' *> return (-1))
+metricValuesP :: Parser MetricValues
+metricValuesP = (MetricValues . Map.fromList) <$> metricsP
 
 metricsP :: Parser [(MetricName, Double)]
 metricsP = many1 measurementP
@@ -43,11 +46,8 @@ measurementP = (,) <$> metricNameP <*> floatP
 metricNameP :: Parser MetricName
 metricNameP = MetricName . T.pack <$> strP
 
-metricValuesP :: Parser MetricValues
-metricValuesP = (MetricValues . Map.fromList) <$> metricsP
+floatP :: Parser Double
+floatP = (*) <$> signP <*> float lexer
 
-testResultP :: Parser (TestName, MetricValues)
-testResultP = (,) <$> testNameP <*> metricValuesP
-
-testNameP  :: Parser TestName
-testNameP = TestName . T.pack <$> strP
+signP :: Parser Double
+signP = option 1 (char '-' *> return (-1))

@@ -16,8 +16,8 @@ import           Cobra.Data
 import           Cobra.DataGen ()
 
 asTestResult :: TestName -> MetricValues -> Text
-asTestResult (TestName tn) (MetricValues mnVals) =
-    quote tn <> " " <> T.concat (map mvAsResult (Map.toList  mnVals))
+asTestResult (TestName tn) (MetricValues mVals) =
+    quote tn <> " " <> T.concat (map mvAsResult (Map.toList  mVals))
     where
       mvAsResult :: (MetricName, Double) -> Text
       mvAsResult (MetricName mn, d) = quote mn <> " " <> T.pack (show d)
