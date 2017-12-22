@@ -60,9 +60,9 @@ runBenchmark (Command cmdText) = do
       runCmdShell :: Text -> Shell (TestName, MetricValues)
       runCmdShell cmd = do
           line <- inproc cmd [] empty
-          tryParseBOL line
+          tryParseBMLine line
 
-      tryParseBOL line =
-          case parseLine (lineToText line) of
+      tryParseBMLine line =
+          case parseBMLine (lineToText line) of
               Left parseErr -> die $ T.pack (show parseErr)
               Right res -> return res

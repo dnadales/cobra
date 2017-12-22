@@ -2,7 +2,7 @@
 -- | Parser for the output of the benchmark programs.
 
 module Cobra.ResultsParser
-    ( parseLine
+    ( parseBMLine
     ) where
 
 import qualified Data.Map as Map
@@ -19,8 +19,8 @@ import           Text.Parsec.String
 import           Cobra.Data
 
 -- | Parse the given benchmark output line.
-parseLine :: Text -> Either ParseError (TestName, MetricValues)
-parseLine = parse testResultP "" . T.unpack
+parseBMLine :: Text -> Either ParseError (TestName, MetricValues)
+parseBMLine = parse testResultP "" . T.unpack
 
 testResultP :: Parser (TestName, MetricValues)
 testResultP = (,) <$> testNameP <*> metricValuesP
