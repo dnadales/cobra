@@ -1,18 +1,24 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Cobra.Main
     ( doBenchmark
     ) where
 
+import           Control.Exception
+import           Data.Maybe
+import qualified Data.Text as T
 import qualified Control.Foldl              as F
 import qualified Data.Map             as Map
 import           Control.Monad.Except
-import           Data.Text (Text)
 import           Turtle hiding (s)
 
 import Cobra.Builder
 import Cobra.Store
 import Cobra.Reporter
 import Cobra.Notifier
+
+import Cobra.ResultsParser
 
 import Cobra.Error
 import Cobra.Data
@@ -30,14 +36,33 @@ doBenchmark b s r n = do
     notify n report
     
 runBenchmark :: (MonadIO m, MonadError Error m) => Command -> m TestResults
-runBenchmark (Command cmdText) = do -- TODO: verify the command exists
-    res <- fold (runCmdShell cmdText) F.list
-    return $ TestResults $ Map.fromList res
-    where 
-        runCmdShell :: Text -> Shell (Text, MetricValues)
-        runCmdShell cmd = do
-            line <- inproc cmd [] empty
-            let testResult = parseTestResult line
-            return testResult
-        parseTestResult :: Line -> (Text, MetricValues)
-        parseTestResult = undefined
+runBenchmark (Command cmdText) = do
+    -- Check that the command exists
+    mPath <- which (fromText cmdText)
+    unless (isJust mPath) (throwError cmdNotFound)
+    res <- liftIO $ gatherOutputFromCmd `catch` handler
+    case res of
+        Left errMsg -> throwError errMsg
+        Right testResults -> return testResults
+
+    where
+      gatherOutputFromCmd :: IO (Either Error TestResults)
+      gatherOutputFromCmd = do
+          res <- fold (runCmdShell cmdText) F.list
+          return $ Right $ TestResults $ Map.fromList res
+
+      handler :: IOError -> IO (Either Error TestResults)
+      handler ex = return $ Left $ mkError 1 (T.pack (show ex))
+
+      cmdNotFound :: Error
+      cmdNotFound = mkError 1 $ "Command not found: " <> cmdText
+      
+      runCmdShell :: Text -> Shell (TestName, MetricValues)
+      runCmdShell cmd = do
+          line <- inproc cmd [] empty
+          tryParseBMLine line
+
+      tryParseBMLine line =
+          case parseBMLine (lineToText line) of
+              Left parseErr -> die $ T.pack (show parseErr)
+              Right res -> return res
