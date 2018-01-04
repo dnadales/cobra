@@ -1,0 +1,77 @@
+name:                cobra
+version:             0.1.0.0
+github:              "capitanbatata/cobra"
+license:             BSD3
+author:
+- "Kerem Ispirli"
+- "Damian Nadales"
+maintainer:          "damian.nadales@gmail.com"
+copyright:           "Copyright: (c) 2017-2018 Kerem Ispirli, Damian Nadales"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+synopsis:            COntinous Benchmarking, Reporting, and Alerting
+category:            Development, Performance, Testing, Benchmarking
+
+description:         Please see the README on Github at <https://github.com/capitanbatata/cobra#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+
+ghc-options:
+- -Wall
+- -Werror
+- -O
+
+default-extensions:
+- OverloadedStrings
+
+library:
+  source-dirs: src
+  dependencies:
+  - optparse-applicative
+  - turtle
+  - text
+  - classy-prelude
+  - parsec
+  - foldl
+  - mtl
+  - containers
+
+executables:
+  cobra:
+    source-dirs:
+    - app
+    main: Main.hs
+    dependencies:
+    - cobra
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Werror
+    - -Wall
+    - -O
+
+tests:
+  unit:
+    main: Spec.hs
+    source-dirs:
+    - test/unit
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Werror
+    - -Wall
+    - -O
+    dependencies:
+    - text
+    - containers
+    - hspec
+    - QuickCheck
+    - quickcheck-text
+
+    - cobra

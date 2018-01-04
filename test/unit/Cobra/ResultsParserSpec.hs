@@ -30,11 +30,11 @@ spec =
     describe "Benchmark output line" $ do
         it "Parses test results without quotes" $ property $
             \name mval ->            
-                Right (name, mval) === parseBOL (asTestResult name mval)
+                Right (name, mval) === parseBMLine (asTestResult name mval)
 
         it "Parses escaped strings" $ do
             let line = "\"My \\\"benchmark\\\"\" \"The \\\"value\\\"\" 239.0"
-                Right (name, mval) = parseBOL line
+                Right (name, mval) = parseBMLine line
             name `shouldBe` "My \"benchmark\""
             mval `shouldBe` MetricValues [("The \"value\"", 239.0)]
 
