@@ -16,13 +16,11 @@ import           Cobra.ResultsParser
 import           Cobra.Data
 import           Cobra.Builder
 import           Cobra.Error
-
+import           Cobra.CobraIO
+    
 data ShellRunner = ShellRunner
 
-newtype RunnerM a = RunnerM { runShell :: ExceptT CobraError IO a}
-    deriving (Functor, Applicative, Monad, MonadIO, MonadError CobraError)
-
-instance Runner ShellRunner RunnerM where
+instance Runner ShellRunner CobraIO where
     runBenchmark _ (Command cmdText) =
         do
         -- Check that the command exists

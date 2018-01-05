@@ -32,6 +32,7 @@ default-extensions:
 - FlexibleInstances
 - GeneralizedNewtypeDeriving
 - ScopedTypeVariables
+- DeriveGeneric
 
 library:
   source-dirs: src
@@ -44,11 +45,13 @@ library:
   - foldl
   - mtl
   - containers
+  - aeson
+  - yaml
 
 executables:
   cobra:
     source-dirs:
-    - app
+    - app/cobra
     main: Main.hs
     dependencies:
     - cobra

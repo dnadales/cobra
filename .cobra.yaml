@@ -1,0 +1,8 @@
+build:
+  command: echo
+  arguments:
+  - "I'm not building anything"
+bench: 
+  command: echo
+  arguments:
+  - "I'm not benchmarking anything"
