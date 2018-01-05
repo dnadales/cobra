@@ -1,7 +1,7 @@
 module Cobra.Error
-    ( Error() -- NOTE: clients of this module shouldn't be able to create
-              -- @Error ExitSuccess@, so don't expose the @ErrorCode@
-              -- constructor.
+    ( CobraError() -- NOTE: clients of this module shouldn't be able to create
+                   -- @Error ExitSuccess@, so don't expose the @ErrorCode@
+                   -- constructor.
     , errorCode
     , message
     , mkError
@@ -10,10 +10,10 @@ module Cobra.Error
 import System.Exit
 import Data.Text (Text)
 
-data Error = Error
+data CobraError = CobraError
     { errorCode :: ExitCode
     , message :: Text
     }
 
-mkError :: Int -> Text -> Error
-mkError code = Error (ExitFailure code)
+mkError :: Int -> Text -> CobraError
+mkError code = CobraError (ExitFailure code)

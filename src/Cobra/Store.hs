@@ -15,12 +15,9 @@ module Cobra.Store
     ( Store (..)
     ) where
 
-import Control.Monad.Except
-
-import Cobra.Error
 import Cobra.Data
 
 -- | A constraint on the data store.
-class MonadError Error m  => Store s m where
+class Store s m where
     store :: s -> TestResults -> VersionIdentifier -> m ()
     getReferenceResult :: s -> [VersionIdentifier] -> m ReferenceResults

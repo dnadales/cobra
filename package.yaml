@@ -27,6 +27,11 @@ ghc-options:
 
 default-extensions:
 - OverloadedStrings
+- MultiParamTypeClasses
+- FlexibleContexts
+- FlexibleInstances
+- GeneralizedNewtypeDeriving
+- ScopedTypeVariables
 
 library:
   source-dirs: src
@@ -57,9 +62,9 @@ executables:
 
 tests:
   unit:
-    main: Spec.hs
     source-dirs:
     - test/unit
+    main: Spec.hs
     ghc-options:
     - -threaded
     - -rtsopts
@@ -73,5 +78,22 @@ tests:
     - hspec
     - QuickCheck
     - quickcheck-text
+
+    - cobra
+
+  integration:
+    source-dirs:
+    - test/integration
+    main: Main.hs
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Werror
+    - -Wall
+    - -O
+    dependencies:
+    - text
+    - mtl
 
     - cobra
