@@ -2,15 +2,14 @@
 
 module Cobra.GitBuilder where
 
-import           Data.Text (Text)
 import           Data.Aeson.Types
 import           GHC.Generics
 import           Data.Yaml
 import           Turtle
-import           Data.Maybe
 import           Control.Monad.Except
+import qualified Data.Text as T
 
-import           Cobra.Builder hiding (Command)
+import           Cobra.Builder
 import           Cobra.CobraIO
 import           Cobra.Error
 
@@ -19,8 +18,8 @@ newtype GitBuilder = GitBuilder
     }
 
 data CobraConfig = CobraConfig
-    { buildConfig :: Command
-    , benchConfig :: Command
+    { buildCommand :: Command
+    , benchCommand :: Command
     } deriving (Eq, Show, Generic)
 
 instance FromJSON CobraConfig where
@@ -29,24 +28,9 @@ instance FromJSON CobraConfig where
         , omitNothingFields  = True
         }
         where
-          fieldsMapping "buildConfig" = "build"
-          fieldsMapping "benchConfig" = "bench"
-          fieldsMapping fld           = fld
-
-data Command = Command
-    { cmdName  :: Text
-    , cmdArgs :: [Text]
-    } deriving (Eq, Show, Generic)
-
-instance FromJSON Command where
-  parseJSON = genericParseJSON defaultOptions
-      { fieldLabelModifier = fieldsMapping
-      , omitNothingFields  = True
-      }
-      where
-        fieldsMapping "cmdName" = "command"
-        fieldsMapping "cmdArgs" = "arguments"
-        fieldsMapping fld       = fld
+          fieldsMapping "buildCommand" = "build"
+          fieldsMapping "benchCommand" = "bench"
+          fieldsMapping fld            = fld
 
 -- | Read the @.cobra.yaml@ configuration file for cobra.
 readConfig :: IO CobraConfig
@@ -58,12 +42,16 @@ readConfig = do
 
 instance Builder GitBuilder CobraIO where
     build gb = do
-        let buildCmd = cmdName . buildConfig . gitBuilderCfg $ gb
-        mPath <- which (fromText buildCmd)
-        unless (isJust mPath)  (throwError $ cmdNotFound buildCmd)
-        return undefined
+        let bc = cmdName . buildCommand . gitBuilderCfg $ gb
+            ba = cmdArgs . buildCommand . gitBuilderCfg $ gb
+        assertCmdExists bc
+        -- Build the command.
+        ec <- proc bc ba empty
+        unless (ec == ExitSuccess) (throwError $ buildFailure ec)
+        return $ benchCommand . gitBuilderCfg $ gb
             where
-              cmdNotFound cmd = mkError 1 $ "Build command not found: " <> cmd
+              buildFailure ec = mkError 1 $
+                  "Build command aborted with exit code: " <> T.pack (show ec)
 
     versionIdentifier = undefined
 

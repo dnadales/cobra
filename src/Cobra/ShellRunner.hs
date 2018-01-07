@@ -9,7 +9,6 @@ import           qualified Data.Text     as T
 import           Turtle                         hiding (s)
 import           Control.Monad.Except
 import           Control.Exception
-import           Data.Maybe
 
 import           Cobra.Runner
 import           Cobra.ResultsParser
@@ -21,11 +20,9 @@ import           Cobra.CobraIO
 data ShellRunner = ShellRunner
 
 instance Runner ShellRunner CobraIO where
-    runBenchmark _ (Command cmdText) =
+    runBenchmark _ (Command {cmdName}) =
         do
-        -- Check that the command exists
-        mPath <- which (fromText cmdText)
-        unless (isJust mPath) (throwError cmdNotFound)
+        assertCmdExists cmdName
         res <- liftIO $ gatherOutputFromCmd `catch` handler
         case res of
             Left errMsg -> throwError errMsg
@@ -33,14 +30,11 @@ instance Runner ShellRunner CobraIO where
         where
           gatherOutputFromCmd :: IO (Either CobraError TestResults)
           gatherOutputFromCmd = do
-              res <- fold (runCmdShell cmdText) F.list
+              res <- fold (runCmdShell cmdName) F.list
               return $ Right $ TestResults $ Map.fromList res
     
           handler :: IOError -> IO (Either CobraError TestResults)
           handler ex = return $ Left $ mkError 1 (T.pack (show ex))
-    
-          cmdNotFound :: CobraError
-          cmdNotFound = mkError 1 $ "Command not found: " <> cmdText
           
           runCmdShell :: Text -> Shell (TestName, MetricValues)
           runCmdShell cmd = do

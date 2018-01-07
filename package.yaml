@@ -33,6 +33,7 @@ default-extensions:
 - GeneralizedNewtypeDeriving
 - ScopedTypeVariables
 - DeriveGeneric
+- NamedFieldPuns
 
 library:
   source-dirs: src
