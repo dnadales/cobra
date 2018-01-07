@@ -69,6 +69,10 @@ instance Builder GitBuilder CobraIO where
         where
           removeEOL txt =
               fst <$> uncons (T.lines txt)
-              
 
-    oldVersions = undefined
+    previousVersions _ = do
+        (ec, out) <- procStrict "git" ["log", "--format=format:%H"] empty
+        unless (ec == ExitSuccess) $
+            throwCobraError $ "Could not get the history "
+            <> out <> "(" <> T.pack (show ec) <> ")"
+        return $ VersionIdentifier <$> T.lines out

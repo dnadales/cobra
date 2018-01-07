@@ -28,4 +28,4 @@ instance FromJSON Command where
 class Monad m => Builder b m where
     build :: b -> m Command
     versionIdentifier :: b -> m VersionIdentifier
-    oldVersions :: b -> m [VersionIdentifier]
+    previousVersions :: b -> m [VersionIdentifier]
