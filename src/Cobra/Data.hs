@@ -14,16 +14,16 @@ import Data.Map (Map)
 import Data.String
 
 
-newtype VersionIdentifier = VersionIdentifier { getVersionText :: Text }
+newtype VersionIdentifier = VersionIdentifier { versionId :: Text }
     deriving (Eq, Show)
 
-newtype TestName = TestName { getTestName :: Text }
+newtype TestName = TestName { testName :: Text }
     deriving (Eq, Ord, IsString)
 
 instance Show TestName where
     show (TestName n) = show n
 
-newtype MetricName = MetricName { getMetricName :: Text }
+newtype MetricName = MetricName { metricName :: Text }
     deriving (Eq, Ord, IsString)
 
 instance Show MetricName where

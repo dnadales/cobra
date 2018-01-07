@@ -20,4 +20,4 @@ import Cobra.Data
 -- | A constraint on the data store.
 class Store s m where
     store :: s -> TestResults -> VersionIdentifier -> m ()
-    getReferenceResult :: s -> [VersionIdentifier] -> m ReferenceResults
+    getReferenceResults :: s -> [VersionIdentifier] -> m ReferenceResults

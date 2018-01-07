@@ -16,6 +16,6 @@ doBenchmark b r s t n = do
     vId <- versionIdentifier b
     store s bmData vId
     history <- previousVersions b
-    refResult <- getReferenceResult s history
+    refResult <- getReferenceResults s history
     report <- generateReport t bmData refResult
     notify n report
