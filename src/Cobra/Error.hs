@@ -13,7 +13,7 @@ import Data.Text (Text)
 data CobraError = CobraError
     { errorCode :: ExitCode
     , message :: Text
-    }
+    } deriving (Show, Eq)
 
 mkError :: Int -> Text -> CobraError
 mkError code = CobraError (ExitFailure code)

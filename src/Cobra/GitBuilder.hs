@@ -8,10 +8,12 @@ import           Data.Yaml
 import           Turtle
 import           Control.Monad.Except
 import qualified Data.Text as T
+import           Data.List
 
 import           Cobra.Builder
 import           Cobra.CobraIO
 import           Cobra.Error
+import           Cobra.Data
 
 newtype GitBuilder = GitBuilder
     { gitBuilderCfg :: CobraConfig
@@ -53,6 +55,20 @@ instance Builder GitBuilder CobraIO where
               buildFailure ec = mkError 1 $
                   "Build command aborted with exit code: " <> T.pack (show ec)
 
-    versionIdentifier = undefined
+    versionIdentifier _ = do
+        (ec, out) <- procStrict "git" ["rev-parse", "HEAD"] empty
+        unless (ec == ExitSuccess) $
+            throwCobraError $ "Could not get the current version identifier "
+            <> out <> "(" <> T.pack (show ec) <> ")"
+        case removeEOL out of
+            Nothing      ->
+                throwCobraError $
+                    "Unexpected output from the `git` command " <> out
+            Just version ->
+                return $ VersionIdentifier version
+        where
+          removeEOL txt =
+              fst <$> uncons (T.lines txt)
+              
 
     oldVersions = undefined
