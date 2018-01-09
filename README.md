@@ -1,6 +1,17 @@
 # cobra
 COntinous Benchmarking, Reporting, and Alerting.
 
+## Initializing the database
+
+TODO: Postgres is required, and the environment variable `$COBRA_DB_USER` must
+be set to the Postgres user you want to use.
+
+## Creating the tables
+
+```sh
+psql cobra_test -f data/create_test_tables.sql
+```
+
 
 ## Console runner
 

@@ -48,6 +48,9 @@ library:
   - containers
   - aeson
   - yaml
+  - postgresql-simple
+  - resource-pool
+  - opaleye
 
 executables:
   cobra:
