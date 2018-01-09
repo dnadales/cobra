@@ -51,6 +51,9 @@ library:
   - postgresql-simple
   - resource-pool
   - opaleye
+  - product-profunctors
+  - time
+  - profunctors
 
 executables:
   cobra:
