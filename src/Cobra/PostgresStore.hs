@@ -3,9 +3,11 @@
 module Cobra.PostgresStore where
 
 import           Opaleye ( Table, Column, Query
-                         , table, tableColumn, queryTable
+                         , tableWithSchema, tableColumn, queryTable
                          , runQuery
-                         , PGInt4, PGText, PGTimestamptz)
+                         , PGInt4, PGText, PGTimestamptz
+                         , pgUTCTime
+                         , runInsertMany)
 import           Data.Profunctor.Product (ProductProfunctor, p2, p3)
 import           Data.Profunctor.Product.Default (Default, def)
 import           Control.Arrow (returnA)
@@ -42,7 +44,10 @@ data Benchmark' a b c = Benchmark
 data Mono = Mono
 
 type Benchmark = Benchmark' Int Text UTCTime -- TODO: see to what haskell type SERIAL is written
-type BenchmarkColumn = Benchmark' (Column PGInt4) (Column PGText) (Column PGTimestamptz)
+type BenchmarkReadColumn = Benchmark' (Column PGInt4) (Column PGText) (Column PGTimestamptz)
+-- | Type of writes to the table. The don't have to (and shouldn't?) supply a
+-- value for the id field.
+type BenchmarkWriteColumn = Benchmark' (Maybe (Column PGInt4)) (Column PGText) (Column PGTimestamptz)
 
 -- | We define `pBenchmark` by hand to avoid having to use `TemplateHaskell`.
 --
@@ -60,22 +65,29 @@ instance (ProductProfunctor p, Default p a a', Default p b b', Default p c c')
     => Default p (Benchmark' a b c) (Benchmark' a' b' c') where
     def = pBenchmark (Benchmark def def def)
 
-benchmarksTable :: Table BenchmarkColumn BenchmarkColumn
-benchmarksTable = table "benchmarks"
+benchmarksTable :: Table BenchmarkWriteColumn BenchmarkReadColumn
+benchmarksTable = tableWithSchema "cobra_test" "benchmarks"
                          (pBenchmark Benchmark 
                                  { bmId = tableColumn "benchmarkid"
                                  , bmVersionId = tableColumn "versionid"
                                  , bmDateTaken = tableColumn "datetaken"
                                  })
 
-benchmarksQuery :: Query BenchmarkColumn
+benchmarksQuery :: Query BenchmarkReadColumn
 benchmarksQuery = queryTable benchmarksTable
 
 getAllBenchmarks :: PostgresStore -> IO [Benchmark]
 getAllBenchmarks PostgresStore { pool } = withResource pool $ \conn ->
     runQuery conn benchmarksQuery
 
+addBenchmark :: PostgresStore -> IO ()
+addBenchmark PostgresStore { pool } = withResource pool $ \conn -> do
+    currTime <- getCurrentTime
+    n <- runInsertMany conn benchmarksTable [Benchmark Nothing "boo" (pgUTCTime currTime)]
+    putStrLn $ "Added " ++ show n ++ " benchmarks." 
+    
 -- * Examples
 
--- > pgs <- mkPostgresStore defaultConnectInfo { connectUser = "damian" , connectDatabase = "cobra_test", connectPassword = "pipo" }
--- > getAllBenchmarks pgs
+-- > import Database.PostgreSQL.Simple
+-- > pgs <- mkPostgresStore defaultConnectInfo { connectUser = "damian" , connectDatabase = "cobra_test", connectPassword = ":testme!" }
+-- > res <- getAllBenchmarks pgs
